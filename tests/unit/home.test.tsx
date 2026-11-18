@@ -17,6 +17,13 @@ it("renders dashboard sections with clearly identified demo data", () => {
     screen.getByRole("heading", { name: "Sample breaking news" }),
   ).toBeVisible();
   expect(screen.getByRole("heading", { name: "Latest News" })).toBeVisible();
+  const dividends = screen.getByRole("region", {
+    name: "Indian Share Dividend Calendar",
+  });
+  expect(dividends).toBeVisible();
+  expect(
+    screen.getByRole("link", { name: "Open dividend calendar" }),
+  ).toHaveAttribute("href", "https://in.tradingview.com/dividend-calendar/");
   expect(
     screen.getByRole("heading", { name: "Stock Watchlist" }),
   ).toBeVisible();

@@ -3,6 +3,7 @@ export const primaryNavigation = [
   { label: "Markets", href: "/#markets" },
   { label: "Latest News", href: "/#news" },
   { label: "Watchlist", href: "/#watchlist" },
+  { label: "Dividends", href: "/#dividends" },
 ] as const;
 
 export const informationNavigation = [

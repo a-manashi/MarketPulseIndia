@@ -94,3 +94,15 @@ Created the market snapshot model, provider contract and factory, market service
 | Production data authorization | Outstanding. Every NSE quote request is rejected and no upstream refresh or cache path is active.        |
 
 Formatting, lint, type checking, the disabled-provider production build, 46 Vitest tests and 11 Chromium tests passed. Coverage was 85.28% statements, 82.23% branches, 83.01% functions and 86.36% lines. Phase 2 measured 85.71%, 83.33%, 83.33% and 86.00%, respectively. The production dependency audit reported zero vulnerabilities. The existing development audit findings remain outside this revision.
+
+The follow-up audit confirmed that metadata discovery works and that the server advertises exact-match stock and index quote tools without output schemas. No quote tool was invoked. The smoke command, quote adapter and response normalizer remain pending authorization and payload verification. A loopback production run with Vercel production markers returned HTTP 200 and empty arrays in disabled mode and HTTP 403 for both mock and NSE modes. All seven automated validation commands passed again.
+
+## Phase 3C hybrid display
+
+The homepage now includes a Dividends section in shared navigation. It links to TradingView's dividend calendar, where readers can select India, and to NSE corporate filings to verify company-announced dates. The dashboard does not copy or embed dividend data.
+
+Implemented the hybrid homepage with Ticker Tape, a SENSEX Mini Chart and a ten-stock Market Overview watchlist when the custom provider is disabled. The Economic Calendar is optional and verified in Chromium. The widget path has independent flags and preserves the custom provider, API and NSE restrictions. No dependencies were added.
+
+On 18 November 2026, official widgets visibly rendered SENSEX and all ten BSE stock listings with end-of-day values. The three NSE indices and the three US index feeds did not render quotes. Hang Seng, the tested forex and commodity feeds, Bitcoin and Ethereum rendered in the Market Data audit. The Japan 225 and UK 100 feeds showed empty quote cells. See the [symbol matrix](TRADINGVIEW_INTEGRATION.md).
+
+The local production homepage displayed three attributed widgets in dark desktop at 1440px and light mobile at 390px, with no page overflow or application errors. Formatting, lint, type checking, 50 Vitest tests, 12 Chromium tests, coverage and the production build passed. Coverage was 88.71% statements, 83.20% branches, 85.49% functions and 89.77% lines.

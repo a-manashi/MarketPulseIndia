@@ -3,9 +3,9 @@
 import useSWR from "swr";
 import { marketSnapshotSchema } from "@/types/market-snapshot";
 
-export function useMarketQuotes() {
+export function useMarketQuotes(enabled: boolean) {
   return useSWR(
-    "/api/market/quotes",
+    enabled ? "/api/market/quotes" : null,
     async (path: string) => {
       const response = await fetch(path, {
         cache: "no-store",

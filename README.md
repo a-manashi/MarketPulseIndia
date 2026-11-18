@@ -2,7 +2,7 @@
 
 MarketPulse India is a planned Indian financial news and market information site. The roadmap includes publisher-linked news, stock-specific coverage, indices, NSE and BSE tickers, and watchlists.
 
-Revised Phase 3 supplies a provider-independent market snapshot to the custom ticker, benchmark cards and aligned watchlist table. The default view shows unavailable values. Demo news remains local and filterable.
+Phase 3C displays verified TradingView widgets for the BSE ticker, SENSEX chart and BSE stock watchlist when the custom provider is disabled. The current BSE widget quotes are end-of-day. The custom ticker, index cards and watchlist still use the normalized market snapshot when a custom provider is enabled. Demo news remains local and filterable.
 
 The header supports Dark (the default), Light and System. It saves the selected theme in the current browser with `next-themes`, the sole Phase 2 dependency addition. The same header, footer and theme are shared by the dashboard and the `/about`, `/disclaimer` and `/privacy` routes.
 
@@ -17,17 +17,22 @@ npm run dev
 
 Open the [homepage](http://localhost:3000) and [health endpoint](http://localhost:3000/api/health). The defaults work without an environment file. To customize them, copy `.env.example` to `.env.local` and set:
 
-| Variable               | Local default           | Purpose                                                                   |
-| ---------------------- | ----------------------- | ------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_APP_NAME` | `MarketPulse India`     | Display name and document title                                           |
-| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | HTTP(S) origin for metadata                                               |
-| `MARKET_DATA_PROVIDER` | `disabled`              | Server-only mode. Set to `mock` in local development for labeled samples. |
+| Variable                         | Local default           | Purpose                                                                   |
+| -------------------------------- | ----------------------- | ------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_APP_NAME`           | `MarketPulse India`     | Display name and document title                                           |
+| `NEXT_PUBLIC_SITE_URL`           | `http://localhost:3000` | HTTP(S) origin for metadata                                               |
+| `MARKET_DATA_PROVIDER`           | `disabled`              | Server-only mode. Set to `mock` in local development for labeled samples. |
+| `MARKET_CUSTOM_SECTIONS_ENABLED` | `true`                  | Allow the custom market snapshot and sections independently of embeds     |
+| `TRADINGVIEW_WIDGETS_ENABLED`    | `true`                  | Enable verified TradingView embeds in the disabled-provider view          |
+| `TRADINGVIEW_CALENDAR_ENABLED`   | `false`                 | Add the optional calendar when widgets are enabled                        |
 
 Restart the development server after changing the market provider. `GET /api/market/quotes` returns a normalized snapshot with `Cache-Control: no-store`. The app does not require credentials.
 
 ## Commands
 
-The watchlist uses aligned Symbol, Price and Change columns. The default view shows unavailable values for tracked stocks. Enable the development-only mock provider to see labeled sample prices.
+The Dividends section links to TradingView's dividend calendar with an India filter available on the source page, plus NSE corporate filings for checking company announcements.
+
+On Vercel, leave `MARKET_DATA_PROVIDER` unset or set it to `disabled` for BSE embed display. Keep `TRADINGVIEW_WIDGETS_ENABLED=true` or use its default. Enable `MARKET_DATA_PROVIDER=mock` only in local development to see sample prices in the custom watchlist.
 
 | npm script      | Purpose                                            |
 | --------------- | -------------------------------------------------- |
@@ -45,7 +50,7 @@ The watchlist uses aligned Symbol, Price and Change columns. The default view sh
 
 Install Playwright Chromium once with `npx playwright install chromium` before running the browser tests.
 
-The browser suite uses local and intercepted market API responses. For manually invoked metadata discovery, see the [NSE MCP integration notes](docs/NSE_MCP_INTEGRATION.md). Quote smoke testing awaits documented permission and a confirmed output schema. The [original TradingView notes](docs/TRADINGVIEW_INTEGRATION.md) are retained as a historical record.
+The browser suite uses controlled responses from the market API and TradingView scripts. See the [TradingView verification matrix](docs/TRADINGVIEW_INTEGRATION.md) for quote availability from the official embeds. `npm run market:discover` remains a manual metadata check. A quote smoke test requires documented permission for programmatic retrieval. See the [NSE MCP integration notes](docs/NSE_MCP_INTEGRATION.md).
 
 ## Project layout
 

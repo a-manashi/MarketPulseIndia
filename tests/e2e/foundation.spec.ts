@@ -1,5 +1,40 @@
 import { expect, test } from "@playwright/test";
 
+const widgetScripts =
+  /^https:\/\/s3\.tradingview\.com\/external-embedding\/embed-widget-(ticker-tape|mini-symbol-overview|market-overview|events)\.js$/;
+
+test.beforeEach(async ({ page }) => {
+  await page.route("**/api/market/quotes", (route) =>
+    route.fulfill({
+      json: {
+        data: {
+          provider: "disabled",
+          status: "disabled",
+          isDemo: false,
+          quotes: [],
+          indices: [],
+          fetchedAt: "2026-01-14T10:00:00Z",
+          unavailableSymbols: [],
+          warnings: [],
+        },
+      },
+    }),
+  );
+  await page.route(widgetScripts, (route) =>
+    route.fulfill({
+      contentType: "application/javascript",
+      body: `(() => {
+      const script = document.currentScript;
+      const frame = document.createElement("iframe");
+      frame.title = "Controlled TradingView fixture";
+      frame.dataset.theme = JSON.parse(script.textContent).colorTheme;
+      frame.style.width = "100%";
+      script.parentElement.querySelector(".tradingview-widget-container__widget").replaceWith(frame);
+    })();`,
+    }),
+  );
+});
+
 test("renders the dashboard, filters news and preserves service health", async ({
   page,
   baseURL,
@@ -11,7 +46,11 @@ test("renders the dashboard, filters news and preserves service health", async (
     if (message.type() === "error") errors.push(message.text());
   });
   page.on("request", (request) => {
-    if (baseURL && new URL(request.url()).origin !== baseURL)
+    if (
+      baseURL &&
+      new URL(request.url()).origin !== baseURL &&
+      !widgetScripts.test(request.url())
+    )
       externalRequests.push(request.url());
   });
 
@@ -27,20 +66,21 @@ test("renders the dashboard, filters news and preserves service health", async (
     page.getByText(/News articles are simulated for development purposes/),
   ).toBeVisible();
   await expect(
-    page
-      .getByRole("status")
-      .filter({ hasText: "Market data is currently unavailable." }),
+    page.getByText(/BSE widget quotes are end-of-day/),
   ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Refresh market data" }),
+  ).toHaveCount(0);
   await expect(
     page.getByRole("region", { name: "Market ticker" }),
   ).toBeVisible();
   const watchlist = page.getByRole("complementary", {
     name: "Stock Watchlist",
   });
+  await expect(watchlist.locator("iframe")).toHaveCount(1);
   await expect(
-    watchlist.getByRole("columnheader", { name: "Price" }),
+    watchlist.getByRole("link", { name: "BSE watchlist" }),
   ).toBeVisible();
-  await expect(watchlist.getByLabel("Price unavailable")).toHaveCount(10);
   await expect(
     page.getByRole("heading", { name: "Sample breaking news" }),
   ).toBeVisible();
@@ -73,6 +113,10 @@ test("renders the dashboard, filters news and preserves service health", async (
   await page
     .getByRole("combobox", { name: "Color theme" })
     .selectOption("light");
+  await expect(watchlist.locator("iframe")).toHaveAttribute(
+    "data-theme",
+    "light",
+  );
   await expect(latest.getByRole("article")).toHaveCount(2);
   const response = await page.request.get("/api/health");
   expect(response.status()).toBe(200);
@@ -268,6 +312,26 @@ test("loads a partial demo snapshot once and refreshes it manually", async ({
   await expect(watchlist.getByText(/125\.50/)).toBeVisible();
   await expect(watchlist.getByLabel("Price unavailable")).toHaveCount(9);
   expect(requests).toBe(1);
+  await expect(
+    page.locator(
+      '[aria-label="Market ticker"] iframe, #markets iframe, #watchlist iframe',
+    ),
+  ).toHaveCount(0);
   await page.getByRole("button", { name: "Refresh market data" }).click();
   await expect.poll(() => requests).toBe(2);
+});
+
+test("keeps the news usable when TradingView is blocked", async ({ page }) => {
+  await page.route(widgetScripts, (route) => route.abort());
+  await page.goto("/");
+  const ticker = page.getByRole("region", { name: "Market ticker" });
+  await expect(ticker.getByRole("status")).toHaveText(
+    "TradingView Ticker Tape is unavailable.",
+  );
+  await expect(
+    ticker.getByRole("link", { name: "Open on TradingView" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Latest News" }),
+  ).toBeVisible();
 });

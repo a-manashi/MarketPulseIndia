@@ -29,6 +29,7 @@ Implement only the phase explicitly requested. Read `docs/DEVELOPMENT_PLAN.md`, 
 - Next.js Route Handlers for server APIs; no separate backend initially.
 - Vitest, React Testing Library and Playwright for tests.
 - Provider-independent market data through server-side adapters and normalized snapshots. Production display requires an authorized market-data provider.
+- Verified public TradingView symbols may be displayed through official widgets as a separate presentation path with attribution and accurate exchange and freshness labels.
 - Hypeless is the candidate news provider, subject to verification of API contract, quota, freshness and display rights.
 - Upstash Redis is the planned shared cache and quota coordination service.
 - Official NSE MCP is for permitted local research only. Public deployment requires a separate approved implementation and documented authorization.

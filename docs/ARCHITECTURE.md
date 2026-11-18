@@ -26,6 +26,12 @@ The factory defaults to disabled mode. Mock is explicitly selected in developmen
 
 A future authorized adapter must establish its response schema, source timestamp semantics and permitted refresh budget before activation. Raw NSE results, distributed caching and production authorization are outside the current implementation.
 
+## Phase 3C hybrid display
+
+The dashboard chooses the embedded display when the custom snapshot reports disabled or when the custom market sections are explicitly off. The embedded path replaces the empty ticker, index cards and stock table with the BSE ticker, SENSEX Mini Chart and BSE Market Overview watchlist. The custom refresh control appears only with the custom sections. Both paths share the existing news layout and theme, with no TradingView calls from the market service.
+
+TradingView symbols and independent presentation flags are centralized. Embeds load only trusted official scripts, reserve dimensions and use the resolved theme. Each widget owns a disposable DOM subtree. Its mutation observer detects frame insertion, while a timer and script error handler provide retry and link fallbacks. The provider renders the quotes and the application preserves attribution. See the [verification matrix](TRADINGVIEW_INTEGRATION.md).
+
 ## Planned architecture
 
 - **Route Handlers** validate and bound inputs and return safe JSON errors. Provider adapters remain server-side. Use SWR for browser fetching when needed.

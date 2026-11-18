@@ -1,5 +1,7 @@
 # Development plan
 
+Phase 3C adds verified public TradingView widgets as a display path while the custom provider is disabled. This extends Phase 3 without changing the NSE MCP restrictions, the authorized-provider work in Phase 7, or the remaining roadmap.
+
 | Phase                                                        | Objective                              | Scope                                                                                       | Deliverables                                                   | Acceptance criteria                                                                                  | Dependencies                    |
 | ------------------------------------------------------------ | -------------------------------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------- |
 | 1. Project Foundation                                        | Establish a reproducible baseline      | Toolchain, config, placeholder UI, health route and validation                              | App scaffold, tests and documentation                          | Homepage and health work with local defaults, all mandatory checks pass and secret files are ignored | None                            |

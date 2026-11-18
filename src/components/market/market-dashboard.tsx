@@ -11,13 +11,26 @@ import { useMarketQuotes } from "@/hooks/use-market-quotes";
 export function MarketDashboard({
   banner,
   children,
+  customEnabled,
+  widgetTicker,
+  widgetOverview,
+  widgetWatchlist,
+  calendar,
 }: {
   banner: ReactNode;
   children: ReactNode;
+  customEnabled: boolean;
+  widgetTicker?: ReactNode;
+  widgetOverview?: ReactNode;
+  widgetWatchlist?: ReactNode;
+  calendar?: ReactNode;
 }) {
-  const { data, error, isLoading, isValidating, mutate } = useMarketQuotes();
+  const { data, error, isLoading, isValidating, mutate } =
+    useMarketQuotes(customEnabled);
   const refreshing = useRef(false);
   const snapshot = error ? undefined : data;
+  const showCustom = customEnabled && snapshot?.status !== "disabled";
+  const hasWatchlist = showCustom || Boolean(widgetWatchlist);
   const quotes = Object.entries(supportedStocks).map(([symbol, instrument]) => {
     const quote = snapshot?.quotes.find(({ id }) => id === instrument.id);
     return {
@@ -67,36 +80,56 @@ export function MarketDashboard({
 
   return (
     <>
-      <MarketTicker quotes={quotes} />
+      {showCustom ? <MarketTicker quotes={quotes} /> : widgetTicker}
       <div className="site-container space-y-4 pt-4 sm:space-y-5 sm:pt-5">
-        <MarketOverview
-          indices={indices}
-          status={
-            <div className="flex flex-wrap items-center gap-2">
-              <p role="status" className="text-sm text-muted-foreground">
-                {notice}
-                {snapshot?.status === "partial" &&
-                  " Some market instruments are currently unavailable."}
+        {showCustom ? (
+          <MarketOverview
+            indices={indices}
+            status={
+              <div className="flex flex-wrap items-center gap-2">
+                <p role="status" className="text-sm text-muted-foreground">
+                  {notice}
+                  {snapshot?.status === "partial" &&
+                    " Some market instruments are currently unavailable."}
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="min-h-11"
+                  disabled={isValidating}
+                  onClick={() => void refresh()}
+                >
+                  {isValidating
+                    ? "Refreshing market data…"
+                    : "Refresh market data"}
+                </Button>
+              </div>
+            }
+          />
+        ) : (
+          (widgetOverview ?? (
+            <section id="markets" className="rounded-lg border bg-card p-4">
+              <h1 className="text-2xl font-bold tracking-tight">
+                Market Overview
+              </h1>
+              <p id="watchlist" className="text-sm text-muted-foreground">
+                Market displays are disabled.
               </p>
-              <Button
-                type="button"
-                variant="outline"
-                className="min-h-11"
-                disabled={isValidating}
-                onClick={() => void refresh()}
-              >
-                {isValidating
-                  ? "Refreshing market data…"
-                  : "Refresh market data"}
-              </Button>
-            </div>
-          }
-        />
+            </section>
+          ))
+        )}
         {banner}
-        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(285px,3fr)]">
+        <div
+          className={
+            hasWatchlist
+              ? "grid items-start gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(285px,3fr)]"
+              : undefined
+          }
+        >
           {children}
-          <StockWatchlist quotes={quotes} />
+          {showCustom ? <StockWatchlist quotes={quotes} /> : widgetWatchlist}
         </div>
+        {calendar}
       </div>
     </>
   );

@@ -14,9 +14,16 @@ export default function PrivacyPage() {
         storage. You can clear it by removing this site’s browser data.
       </p>
       <p>
-        The public dashboard has no external market-data feed. Local research
-        tooling, when separately authorized, may contact the configured
-        market-data provider.
+        When TradingView widgets are enabled, your browser connects to
+        TradingView to display quotes. The{" "}
+        <a
+          className="text-primary underline"
+          href="https://www.tradingview.com/privacy-policy/"
+        >
+          TradingView Privacy Policy
+        </a>{" "}
+        may apply to those requests. Local research tooling, when separately
+        authorized, may contact the configured market-data provider.
       </p>
       <p>
         This app has no user accounts or first-party analytics or advertising. A
