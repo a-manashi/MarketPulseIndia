@@ -1,0 +1,12 @@
+AGENTS.md
+next-env.d.ts
+package-lock.json
+.next/
+out/
+build/
+dist/
+coverage/
+playwright-report/
+test-results/
+.vercel/
+.env*
