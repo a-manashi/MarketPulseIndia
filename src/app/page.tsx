@@ -1,46 +1,33 @@
-import { ArrowUpRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { MarketOverview } from "@/components/market/market-overview";
+import { MarketTicker } from "@/components/market/market-ticker";
+import { StockWatchlist } from "@/components/market/stock-watchlist";
+import { BreakingNewsBanner } from "@/components/news/breaking-news-banner";
+import { FeaturedNewsCard } from "@/components/news/featured-news-card";
+import { NewsSection } from "@/components/news/news-section";
+import { DemoDataNotice } from "@/components/shared/demo-data-notice";
+import { demoIndices, demoQuotes } from "@/lib/mock/market";
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
-import { siteConfig } from "@/config/site";
+  demoBreakingNews,
+  demoFeaturedNews,
+  demoLatestNews,
+} from "@/lib/mock/news";
 
 export default function Home() {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col justify-center gap-10 px-6 py-16 sm:px-12">
-      <header className="space-y-3">
-        <h1 className="text-4xl font-semibold tracking-tight sm:text-6xl">
-          {siteConfig.name}
-        </h1>
-        <p className="text-lg text-muted-foreground">
-          {siteConfig.description}
-        </p>
-      </header>
-      <Card>
-        <CardHeader>
-          <h2 className="text-xl font-semibold">Project Foundation</h2>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            The application foundation is initialized. You can check the service
-            health to verify that the API is responding.
-          </p>
-        </CardContent>
-        <CardFooter>
-          <form action="/api/health" method="get">
-            <Button
-              type="submit"
-              className="min-h-11 motion-reduce:transition-none"
-            >
-              Check service health
-              <ArrowUpRight aria-hidden="true" />
-            </Button>
-          </form>
-        </CardFooter>
-      </Card>
-    </main>
+    <>
+      <MarketTicker quotes={demoQuotes} />
+      <div className="site-container space-y-4 pt-4 sm:space-y-5 sm:pt-5">
+        <DemoDataNotice />
+        <MarketOverview indices={demoIndices} />
+        <BreakingNewsBanner article={demoBreakingNews} />
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,7fr)_minmax(285px,3fr)]">
+          <NewsSection
+            articles={demoLatestNews}
+            featured={<FeaturedNewsCard article={demoFeaturedNews} />}
+          />
+          <StockWatchlist quotes={demoQuotes} />
+        </div>
+      </div>
+    </>
   );
 }

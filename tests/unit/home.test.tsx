@@ -3,22 +3,23 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, expect, it } from "vitest";
 import Home from "@/app/page";
-import { siteConfig } from "@/config/site";
 
 afterEach(cleanup);
 
-it("renders the foundation content and links to service health", () => {
+it("renders dashboard sections with clearly identified demo data", () => {
   render(<Home />);
   expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-    siteConfig.name,
+    "Market Overview",
   );
-  expect(screen.getByText(siteConfig.description)).toBeVisible();
+  expect(screen.getByRole("region", { name: "Market ticker" })).toBeVisible();
   expect(
-    screen.getByRole("heading", { name: "Project Foundation" }),
+    screen.getByText(/Market data and news shown are simulated/),
   ).toBeVisible();
   expect(
-    screen
-      .getByRole("button", { name: "Check service health" })
-      .closest("form"),
-  ).toHaveAttribute("action", "/api/health");
+    screen.getByRole("heading", { name: "Sample breaking news" }),
+  ).toBeVisible();
+  expect(screen.getByRole("heading", { name: "Latest News" })).toBeVisible();
+  expect(
+    screen.getByRole("heading", { name: "Stock Watchlist" }),
+  ).toBeVisible();
 });
