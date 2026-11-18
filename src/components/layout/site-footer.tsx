@@ -36,9 +36,9 @@ export function SiteFooter() {
           </nav>
         </div>
         <p className="border-t pt-5 text-sm leading-relaxed text-muted-foreground">
-          For informational and educational purposes only. The demo figures and
-          articles are simulated and do not constitute investment advice.
-          Investing involves risk.
+          For informational and educational purposes only. News articles are
+          simulated. Market information may be delayed or unavailable. This site
+          does not provide investment advice. Investing involves risk.
         </p>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 text-xs text-muted-foreground">
           <small className="text-xs">

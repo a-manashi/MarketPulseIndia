@@ -14,10 +14,11 @@ export default function DisclaimerPage() {
         content does not constitute investment advice.
       </p>
       <p>
-        The current quotes, index values, charts and news examples are
-        simulated. Where market data is introduced, it may be delayed or
-        incomplete. Independently verify information with the relevant exchange
-        or original publisher before making financial decisions.
+        Market information from a configured provider may be delayed,
+        unavailable or end-of-day depending on the exchange and instrument.
+        Verify prices with your broker or an authorized market-data provider
+        before making financial decisions. News articles are simulated during
+        development.
       </p>
       <p>Investing involves risk, including loss of capital.</p>
     </InformationPage>

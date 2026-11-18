@@ -13,9 +13,10 @@ export default function AboutPage() {
         sample stock watchlist into one view.
       </p>
       <p>
-        The current development version uses simulated quotes and editorial
-        examples. The roadmap includes market widgets and links to original
-        publisher coverage once data access and display rights are verified.
+        A configurable market provider supplies the dashboard when data is
+        authorized and available. News articles are simulated editorial
+        examples. Links to original publisher coverage are planned once data
+        access and display rights are verified.
       </p>
     </InformationPage>
   );

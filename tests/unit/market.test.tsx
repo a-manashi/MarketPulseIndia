@@ -45,7 +45,7 @@ it("renders sample watchlist quotes with prices and directional text", () => {
     previousClose: 1000,
     change: -10,
     changePercent: -1,
-    updatedAt: index.updatedAt,
+    updatedAt: "2026-01-14T10:00:00Z",
     dataSource: "Test",
     isDemo: true,
     isDelayed: false,

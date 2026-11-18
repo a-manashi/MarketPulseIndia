@@ -1,10 +1,25 @@
 import { ListFilter } from "lucide-react";
+import type { ReactNode } from "react";
 import { MarketMovement } from "@/components/market/market-movement";
 import { EmptyState } from "@/components/shared/empty-state";
 import { formatCurrency } from "@/lib/utils/format-market";
-import type { StockQuote } from "@/types/market";
 
-export function StockWatchlist({ quotes }: { quotes: readonly StockQuote[] }) {
+type WatchlistRow = {
+  symbol: string;
+  name: string;
+  href?: string;
+  price?: number | null;
+  changePercent?: number | null;
+  isDemo?: boolean;
+};
+
+export function StockWatchlist({
+  quotes,
+  action,
+}: {
+  quotes: readonly WatchlistRow[];
+  action?: ReactNode;
+}) {
   return (
     <aside
       id="watchlist"
@@ -25,6 +40,7 @@ export function StockWatchlist({ quotes }: { quotes: readonly StockQuote[] }) {
           </span>
         )}
       </div>
+      {action}
       {quotes.length === 0 ? (
         <EmptyState message="No quotes are available." />
       ) : (
@@ -59,17 +75,31 @@ export function StockWatchlist({ quotes }: { quotes: readonly StockQuote[] }) {
               <tr key={quote.symbol} className="align-middle">
                 <th scope="row" className="py-2.5 pr-1 pl-3 text-left sm:pl-4">
                   <span className="block font-bold tracking-wide">
-                    {quote.symbol}
+                    {quote.href ? (
+                      <a href={quote.href} className="hover:underline">
+                        {quote.symbol}
+                      </a>
+                    ) : (
+                      quote.symbol
+                    )}
                   </span>
                   <span className="mt-0.5 block text-[0.6875rem] leading-snug font-normal text-muted-foreground">
                     {quote.name}
                   </span>
                 </th>
                 <td className="px-1 text-right font-semibold whitespace-nowrap tabular-nums">
-                  {formatCurrency(quote.price)}
+                  {quote.price != null ? (
+                    formatCurrency(quote.price)
+                  ) : (
+                    <span aria-label="Price unavailable">—</span>
+                  )}
                 </td>
                 <td className="pr-3 text-right font-semibold sm:pr-4">
-                  <MarketMovement changePercent={quote.changePercent} />
+                  {quote.changePercent != null ? (
+                    <MarketMovement changePercent={quote.changePercent} />
+                  ) : (
+                    <span aria-label="Change unavailable">—</span>
+                  )}
                 </td>
               </tr>
             ))}

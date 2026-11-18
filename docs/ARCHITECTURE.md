@@ -18,10 +18,18 @@ The dashboard uses a centered 1,500px container, compact index cards and a 70/30
 
 The ticker is an isolated component for the future TradingView replacement. Breaking, featured and latest news consume provider-neutral article types. The featured story remains an editorial selection while the local category controls filter the latest feed. The watchlist is a fixed set of display-only quotes.
 
+## Revised Phase 3
+
+The dashboard uses one SWR key for the validated, no-store market snapshot from the Node.js Route Handler at `/api/market/quotes`. A server-only service selects a provider and validates the normalized result. The ticker, index cards and watchlist use the same snapshot and show placeholders for missing values. Manual refresh is explicit, with focus and reconnect refreshes disabled. News is independently rendered and still uses local demo fixtures.
+
+The factory defaults to disabled mode. Mock is explicitly selected in development and uses deterministic samples. Every application request for NSE MCP quotes is denied, including on Vercel. The standalone discovery script uses the official MCP SDK and a fixed intraday endpoint for an explicitly enabled local metadata session. It does not call quote tools. See the [NSE research notes](NSE_MCP_INTEGRATION.md) for prerequisites and actual verification.
+
+A future authorized adapter must establish its response schema, source timestamp semantics and permitted refresh budget before activation. Raw NSE results, distributed caching and production authorization are outside the current implementation.
+
 ## Planned architecture
 
 - **Route Handlers** validate and bound inputs and return safe JSON errors. Provider adapters remain server-side. Use SWR for browser fetching when needed.
 - **News** uses a provider interface and one normalized, deduplicated feed with original publisher URLs and publication timestamps. Verify Hypeless API schemas, quotas, freshness and display rights before activation. Publish only permitted content with attribution.
-- **Market** uses typed exchange-qualified symbols. TradingView embeds use supported initialization methods and retain attribution. Verify licensing and supported symbols. Custom quotes use a separate normalized provider contract with source and freshness metadata. NSE MCP public display requires documented authorization.
+- **Market** uses typed exchange-qualified symbols and a normalized provider contract. Production display requires an authorized provider and verified entitlements.
 - **Caching** uses shared Upstash Redis state for request-driven freshness, distributed locking and atomic upstream quota accounting. Serve labeled stale data where available and fail closed for metered calls if coordination is unavailable.
 - **Deployment** targets stateless Vercel functions. Keep durable state out of local files and process memory. Disable or isolate metered providers in previews. Verify Hobby terms and obtain approval before deployment.

@@ -10,11 +10,11 @@ MarketPulse India is an Indian financial news and market information website, in
 
 1. Project Foundation
 2. UI Design and Application Layout
-3. Market Ticker and TradingView Integration
+3. Market Data Provider Architecture & NSE MCP Integration
 4. News API Integration
-5. Caching and API Quota Management
+5. Caching and API Quota Management for News and Market Data
 6. News Dashboard and User Experience
-7. Custom Market Data and Watchlist
+7. Authorized Market Data and Personalized Watchlist
 8. SEO, Performance and Security
 9. Testing and Quality Assurance
 10. Vercel Production Deployment
@@ -28,10 +28,10 @@ Implement only the phase explicitly requested. Read `docs/DEVELOPMENT_PLAN.md`, 
 - Zod for boundary validation; SWR for client-side data fetching when needed.
 - Next.js Route Handlers for server APIs; no separate backend initially.
 - Vitest, React Testing Library and Playwright for tests.
-- TradingView embedded widgets for market display, subject to supported symbols, entitlements and terms.
+- Provider-independent market data through server-side adapters and normalized snapshots. Production display requires an authorized market-data provider.
 - Hypeless is the candidate news provider, subject to verification of API contract, quota, freshness and display rights.
 - Upstash Redis is the planned shared cache and quota coordination service.
-- NSE MCP is an optional experimental market provider, disabled for public display until authorized.
+- Official NSE MCP is for permitted local research only. Public deployment requires a separate approved implementation and documented authorization.
 - No database, authentication, payments, AI summaries or order execution in the initial MVP unless explicitly approved.
 - Use stable compatible versions, preserve the npm lockfile, and avoid unnecessary dependencies. Do not change frameworks or hosting architecture without approval.
 
@@ -69,9 +69,9 @@ Use a provider interface and normalized article model. Validate external respons
 
 ## 9. Market architecture
 
-Maintain supported symbols in centralized typed configuration. Keep exchange-qualified identifiers and display labels distinct. Use TradingView widgets through supported embed methods. Initialize widgets safely on the client, clean up on unmount, and handle theme changes without duplicate scripts or hydration errors. Custom quotes must use a normalized provider contract and include source and freshness metadata. Keep NSE MCP public access disabled by default; do not enable it without documented permission. Watchlists may use local storage initially; validate stored values and handle unavailable storage. No trading or brokerage integration in the MVP.
+Maintain supported symbols in centralized typed configuration. Keep exchange-qualified identifiers and display labels distinct. Use a normalized market provider contract with source and freshness metadata. Keep disabled mode as the safe default. Authorized NSE MCP access must be server-side, use fixed official HTTPS endpoints and verified read-only tools, require explicit local development opt-in and loopback binding, and fail closed in production and all Vercel environments. Require documented permission before enabling quote retrieval. Watchlists may use local storage initially; validate stored values and handle unavailable storage. No trading or brokerage integration in the MVP.
 
-## 10. Caching and quota protection
+## 10. News and market data caching and quota protection
 
 Never fetch upstream data once per visitor. Use shared server-side caching, request-driven refresh and a distributed lock when implemented. Initial proposed policy: 15-minute news freshness, 8 AM–6 PM Asia/Kolkata refresh window, maximum 40 upstream requests per day and 5-minute browser polling. These values are configurable and must be verified against actual provider terms and quota reset rules. Count upstream attempts atomically before making requests, including retries; do not exceed the configured budget. Use bounded timeouts, safe retry policies, lock ownership and expiry. Serve clearly labeled stale data during failures where available. If cache or quota coordination is unavailable, fail closed for metered upstream calls rather than allowing unlimited requests. Do not assume in-memory state is shared across Vercel instances. Do not rely on frequent Hobby cron jobs or long-running background processes.
 

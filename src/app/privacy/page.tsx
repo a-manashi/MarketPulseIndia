@@ -14,10 +14,14 @@ export default function PrivacyPage() {
         storage. You can clear it by removing this site’s browser data.
       </p>
       <p>
-        This version has no user accounts, analytics, advertising or tracking
-        scripts. A hosting provider may process technical request information
-        under its own policies. This page should be reviewed when hosting or
-        integrations change.
+        The public dashboard has no external market-data feed. Local research
+        tooling, when separately authorized, may contact the configured
+        market-data provider.
+      </p>
+      <p>
+        This app has no user accounts or first-party analytics or advertising. A
+        hosting provider may process technical request information under its own
+        policies.
       </p>
     </InformationPage>
   );

@@ -24,7 +24,7 @@ function movement(value: number, previousClose: number) {
 export const demoQuotes: readonly StockQuote[] = samplePrices.map(
   ([symbol, price, previousClose]) => ({
     symbol,
-    name: supportedStocks[symbol],
+    name: supportedStocks[symbol].name,
     exchange: "NSE",
     price,
     previousClose,
@@ -70,8 +70,8 @@ const sampleIndices: readonly [
   ],
 ];
 
-export const demoIndices: readonly MarketIndex[] = sampleIndices.map(
-  ([id, name, symbol, value, previousClose, sparkline]) => ({
+export const demoIndices: readonly (MarketIndex & { value: number })[] =
+  sampleIndices.map(([id, name, symbol, value, previousClose, sparkline]) => ({
     id,
     name,
     symbol,
@@ -80,5 +80,4 @@ export const demoIndices: readonly MarketIndex[] = sampleIndices.map(
     updatedAt,
     sparkline,
     isDemo: true,
-  }),
-);
+  }));

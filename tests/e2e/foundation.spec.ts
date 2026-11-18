@@ -24,8 +24,23 @@ test("renders the dashboard, filters news and preserves service health", async (
     page.getByRole("heading", { name: "Market Overview" }),
   ).toBeVisible();
   await expect(
-    page.getByText(/Market data and news shown are simulated/),
+    page.getByText(/News articles are simulated for development purposes/),
   ).toBeVisible();
+  await expect(
+    page
+      .getByRole("status")
+      .filter({ hasText: "Market data is currently unavailable." }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("region", { name: "Market ticker" }),
+  ).toBeVisible();
+  const watchlist = page.getByRole("complementary", {
+    name: "Stock Watchlist",
+  });
+  await expect(
+    watchlist.getByRole("columnheader", { name: "Price" }),
+  ).toBeVisible();
+  await expect(watchlist.getByLabel("Price unavailable")).toHaveCount(10);
   await expect(
     page.getByRole("heading", { name: "Sample breaking news" }),
   ).toBeVisible();
@@ -55,7 +70,10 @@ test("renders the dashboard, filters news and preserves service health", async (
       name: "What to look for in an IPO prospectus",
     }),
   ).toHaveCount(0);
-
+  await page
+    .getByRole("combobox", { name: "Color theme" })
+    .selectOption("light");
+  await expect(latest.getByRole("article")).toHaveCount(2);
   const response = await page.request.get("/api/health");
   expect(response.status()).toBe(200);
   expect(response.headers()["cache-control"]).toContain("no-store");
@@ -160,7 +178,8 @@ for (const width of [360, 390, 768, 1024, 1440, 1920]) {
   test(`fits the dashboard at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 });
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "NIFTY 50" })).toBeVisible();
+    const ticker = page.getByRole("region", { name: "Market ticker" });
+    await expect(ticker).toBeVisible();
     await expect(
       page.getByRole("heading", { name: "Stock Watchlist" }),
     ).toBeVisible();
@@ -177,3 +196,78 @@ for (const width of [360, 390, 768, 1024, 1440, 1920]) {
     expect(layout).toEqual({ pageWidth: width, clippedHeadlines: [] });
   });
 }
+
+test("keeps news usable after a market API failure", async ({ page }) => {
+  await page.route("**/api/market/quotes", (route) =>
+    route.fulfill({
+      status: 503,
+      json: { error: { code: "PROVIDER_UNAVAILABLE" } },
+    }),
+  );
+  await page.goto("/");
+  await expect(
+    page.getByText("Market data is currently unavailable."),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByRole("complementary", { name: "Stock Watchlist" })
+      .getByLabel("Price unavailable"),
+  ).toHaveCount(10);
+  await page.getByRole("button", { name: "Banking" }).click();
+  await expect(
+    page.getByRole("region", { name: "Latest News" }).getByRole("article"),
+  ).toHaveCount(2);
+});
+
+test("loads a partial demo snapshot once and refreshes it manually", async ({
+  page,
+}) => {
+  let requests = 0;
+  const fetchedAt = "2026-01-14T10:00:00Z";
+  await page.route("**/api/market/quotes", async (route) => {
+    requests++;
+    await route.fulfill({
+      json: {
+        data: {
+          provider: "mock",
+          fetchedAt,
+          isDemo: true,
+          status: "partial",
+          indices: [],
+          unavailableSymbols: ["BSE:SENSEX"],
+          warnings: [],
+          quotes: [
+            {
+              id: "NSE:RELIANCE",
+              symbol: "RELIANCE",
+              name: "Reliance Industries",
+              exchange: "NSE",
+              currency: "INR",
+              price: 125.5,
+              previousClose: null,
+              change: null,
+              changePercent: null,
+              updatedAt: null,
+              fetchedAt,
+              dataSource: "MarketPulse Demo",
+              freshness: "demo",
+              isDemo: true,
+            },
+          ],
+        },
+      },
+    });
+  });
+  await page.goto("/");
+  await expect(
+    page.getByText(/Demo market data.*Some market instruments/),
+  ).toBeVisible();
+  const watchlist = page.getByRole("complementary", {
+    name: "Stock Watchlist",
+  });
+  await expect(watchlist.getByText(/125\.50/)).toBeVisible();
+  await expect(watchlist.getByLabel("Price unavailable")).toHaveCount(9);
+  expect(requests).toBe(1);
+  await page.getByRole("button", { name: "Refresh market data" }).click();
+  await expect.poll(() => requests).toBe(2);
+});

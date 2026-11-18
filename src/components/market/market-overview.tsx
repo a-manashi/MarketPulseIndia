@@ -1,11 +1,14 @@
 import { MarketIndexCard } from "@/components/market/market-index-card";
 import { MarketStatus } from "@/components/market/market-status";
 import type { MarketIndex } from "@/types/market";
+import type { ReactNode } from "react";
 
 export function MarketOverview({
   indices,
+  status,
 }: {
   indices: readonly MarketIndex[];
+  status?: ReactNode;
 }) {
   return (
     <section
@@ -20,9 +23,9 @@ export function MarketOverview({
         >
           Market Overview
         </h1>
-        <MarketStatus />
+        {status ?? <MarketStatus />}
       </div>
-      <div className="grid gap-2.5 sm:grid-cols-3 sm:gap-3">
+      <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-3 xl:grid-cols-4">
         {indices.map((index) => (
           <MarketIndexCard key={index.id} index={index} />
         ))}

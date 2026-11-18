@@ -1,9 +1,16 @@
 import { ChartNoAxesColumn } from "lucide-react";
 import { MarketMovement } from "@/components/market/market-movement";
 import { formatCurrency } from "@/lib/utils/format-market";
-import type { StockQuote } from "@/types/market";
-
-export function MarketTicker({ quotes }: { quotes: readonly StockQuote[] }) {
+export function MarketTicker({
+  quotes,
+}: {
+  quotes: readonly {
+    symbol: string;
+    price: number | null;
+    changePercent: number | null;
+    isDemo: boolean;
+  }[];
+}) {
   return (
     <section className="border-b bg-card/55" aria-label="Market ticker">
       <div className="site-container flex items-stretch">
@@ -30,12 +37,18 @@ export function MarketTicker({ quotes }: { quotes: readonly StockQuote[] }) {
               >
                 <span className="font-bold tracking-wide">{quote.symbol}</span>
                 <span className="text-muted-foreground tabular-nums">
-                  {formatCurrency(quote.price)}
+                  {quote.price === null ? (
+                    <span aria-label="Price unavailable">—</span>
+                  ) : (
+                    formatCurrency(quote.price)
+                  )}
                 </span>
-                <MarketMovement
-                  changePercent={quote.changePercent}
-                  className="font-semibold"
-                />
+                {quote.changePercent !== null && (
+                  <MarketMovement
+                    changePercent={quote.changePercent}
+                    className="font-semibold"
+                  />
+                )}
               </li>
             ))}
           </ul>

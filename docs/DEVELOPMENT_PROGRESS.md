@@ -1,17 +1,17 @@
 # Development progress
 
-| Phase | Name                                      | Status    | Completion date |
-| ----- | ----------------------------------------- | --------- | --------------- |
-| 1     | Project Foundation                        | Completed | 2026-11-18      |
-| 2     | UI Design and Application Layout          | Completed | 2026-11-18      |
-| 3     | Market Ticker and TradingView Integration | Pending   | —               |
-| 4     | News API Integration                      | Pending   | —               |
-| 5     | Caching and API Quota Management          | Pending   | —               |
-| 6     | News Dashboard and User Experience        | Pending   | —               |
-| 7     | Custom Market Data and Watchlist          | Pending   | —               |
-| 8     | SEO, Performance and Security             | Pending   | —               |
-| 9     | Testing and Quality Assurance             | Pending   | —               |
-| 10    | Vercel Production Deployment              | Pending   | —               |
+| Phase | Name                                                      | Status             | Completion date |
+| ----- | --------------------------------------------------------- | ------------------ | --------------- |
+| 1     | Project Foundation                                        | Completed          | 2026-11-18      |
+| 2     | UI Design and Application Layout                          | Completed          | 2026-11-18      |
+| 3     | Market Data Provider Architecture & NSE MCP Integration   | Partially complete | —               |
+| 4     | News API Integration                                      | Pending            | —               |
+| 5     | Caching and API Quota Management for News and Market Data | Pending            | —               |
+| 6     | News Dashboard and User Experience                        | Pending            | —               |
+| 7     | Authorized Market Data and Personalized Watchlist         | Pending            | —               |
+| 8     | SEO, Performance and Security                             | Pending            | —               |
+| 9     | Testing and Quality Assurance                             | Pending            | —               |
+| 10    | Vercel Production Deployment                              | Pending            | —               |
 
 ## Phase 1
 
@@ -54,3 +54,43 @@ Future decisions include provider contracts and public display rights, supported
 | `npm audit --omit=dev`                                      | Zero reported vulnerabilities. The full install audit still reports the 17 pre-existing development findings noted in Phase 1.                                                                                  |
 
 The dashboard uses simulated data. The featured story is independent of the category filter, and the watchlist has no personalization. The disclaimer and privacy copy require review before production deployment. Future decisions include TradingView symbol availability, data entitlements and editorial publication rights.
+
+## Original Phase 3 (superseded)
+
+- Added the official TradingView iframe embeds for Ticker Tape, Market Overview and Symbol Overview. The client lifecycle handles resolved themes, lazy chart loading, retries, errors and timeout cleanup.
+- Centralized stock and index identifiers. SENSEX is the chart default and the sole embedded symbol. India’s NSE is absent from public widget coverage, so the ten tracked NSE stocks appear as linked names and symbols. Individual NSE quotes were not tested.
+- Added the validated `NEXT_PUBLIC_MARKET_WIDGETS_ENABLED` flag. Demo news remains labeled separately. The site displays an end-of-day BSE disclosure and preserves TradingView branding.
+- Created `src/config/tradingview.ts`, `src/components/market/tradingview/`, the widget and isolated demo-market unit tests, and [the integration notes](TRADINGVIEW_INTEGRATION.md).
+- Updated the homepage, market symbol map, mock stock fixture lookup, news notice, footer, information pages, environment schema and example, dashboard tests, README and architecture. No dependency was added or upgraded.
+
+| Validation                                                  | Observed result                                                                                                                                                                         |
+| ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Baseline                                                    | Phase 2 formatting, all 36 unit/integration tests and all nine Chromium tests passed before implementation.                                                                             |
+| `npm run format:check`, `npm run lint`, `npm run typecheck` | Passed                                                                                                                                                                                  |
+| `npm run test`, `npm run test:coverage`                     | 45 tests passed across ten files. Coverage was 86.78% statements, 86.53% branches, 83.20% functions and 88.05% lines. Phase 2 recorded 85.71%, 83.33%, 83.33% and 86.00%, respectively. |
+| `npm run build`                                             | Passed. The homepage and information pages prerender, and the health route remains dynamic.                                                                                             |
+| `npm run test:e2e`                                          | Ten deterministic Chromium tests passed, including controlled blocked-script behavior and widths of 360, 390, 768, 1024, 1440 and 1920px.                                               |
+| External Chromium smoke                                     | All three official widgets visibly rendered SENSEX with attribution. Verified dark desktop at 1440px and light mobile at 390px, with one frame per widget and no mobile page overflow.  |
+| Local production HTTP checks                                | `/`, `/about`, `/disclaimer`, `/privacy` and `/api/health` returned HTTP 200.                                                                                                           |
+
+The provider repeats the single symbol in Ticker Tape. Data can become unavailable inside a provider frame independently of script initialization. Production review still needs to revisit provider and exchange terms and the preliminary privacy and disclaimer text.
+
+Follow-up moved the Market Overview embed into the homepage’s Market Overview section. The sidebar now holds the tracked stock links. Formatting, lint, type checking, all 45 unit and integration tests, the production build and all 10 Chromium tests passed again. A local production smoke test showed SENSEX in the new position.
+
+The watchlist now uses the original three-column table. During development, visitors can explicitly show labeled demo quotes. The default table shows unavailable prices and changes for the tracked NSE symbols.
+
+## Revised Phase 3
+
+Replaced the TradingView dashboard with the custom ticker, index cards and three-column watchlist. A server-only provider factory and market service validate a single no-store snapshot, which the dashboard fetches through a shared SWR key. Disabled mode is the default. Mock mode is explicit and development-only. Missing prices and changes remain unavailable, and demo news remains separate.
+
+Created the market snapshot model, provider contract and factory, market service and route, SWR hook, dashboard composition, metadata discovery script, integration tests and [NSE research notes](NSE_MCP_INTEGRATION.md). Updated the market components, catalog, environment example, information pages, browser tests and roadmap. Removed the superseded TradingView script and widget implementation. Added `@modelcontextprotocol/sdk@1.32.2` for manually invoked discovery.
+
+| Area                          | Status                                                                                                   |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Provider architecture         | Implemented for disabled and mock modes, with safe errors and normalized snapshots.                      |
+| Local NSE MCP connectivity    | One Streamable HTTP metadata session succeeded at the official intraday endpoint. The client was closed. |
+| NSE quote normalization       | Pending authorization and a verified output contract. No quote tools were invoked.                       |
+| Dashboard integration         | Implemented. Browser tests cover default, partial demo, failure, refresh and responsive navigation.      |
+| Production data authorization | Outstanding. Every NSE quote request is rejected and no upstream refresh or cache path is active.        |
+
+Formatting, lint, type checking, the disabled-provider production build, 46 Vitest tests and 11 Chromium tests passed. Coverage was 85.28% statements, 82.23% branches, 83.01% functions and 86.36% lines. Phase 2 measured 85.71%, 83.33%, 83.33% and 86.00%, respectively. The production dependency audit reported zero vulnerabilities. The existing development audit findings remain outside this revision.

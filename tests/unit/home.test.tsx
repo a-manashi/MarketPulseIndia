@@ -12,9 +12,7 @@ it("renders dashboard sections with clearly identified demo data", () => {
     "Market Overview",
   );
   expect(screen.getByRole("region", { name: "Market ticker" })).toBeVisible();
-  expect(
-    screen.getByText(/Market data and news shown are simulated/),
-  ).toBeVisible();
+  expect(screen.getByText(/News articles are simulated/)).toBeVisible();
   expect(
     screen.getByRole("heading", { name: "Sample breaking news" }),
   ).toBeVisible();
